@@ -1,0 +1,22 @@
+[tool.ruff]
+preview = true
+
+ 
+
+[tool.ruff.lint]
+select = [
+   "ALL"
+]
+extend-select = [
+   "ALL"
+]
+ignore = [
+   "ANN",  # recommend type annotation
+   "CPY",  # recommend copyright notice
+   "D",  # recommend docstring
+   "DOC",  # recommend docstring
+   "FIX",  # recommend removal of todo/fixme comments.
+   "FURB118",  # recommend use of "operator" instead of lamda
+   "E501",  # recommend limited line length
+   "T20",  # recommend removal of print statements
+]
