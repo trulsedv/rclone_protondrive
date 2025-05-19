@@ -2,7 +2,7 @@ import subprocess  # noqa: S404
 from pathlib import Path
 
 NORMAL_COMMAND = r"rclone bisync ProtonDrive: /home/truls/Documents -v --force --min-size 1b --max-lock 90m --log-file=/home/truls/rclone-logs/protondrive-$(date +\%Y\%m\%d\%H\%M).log"
-RESYNC_COMMAND = r"rclone bisync ProtonDrive: /home/truls/Documents -v --force --min-size 1b --max-lock 90m --log-file=/home/truls/rclone-logs/protondrive-$(date +\%Y\%m\%d\%H\%M)-resync.log --resync"
+RESYNC_COMMAND = r"rclone bisync ProtonDrive: /home/truls/Documents -v --force --min-size 1b --max-lock 90m --log-file=/home/truls/rclone-logs/protondrive-$(date +\%Y\%m\%d\%H\%M)_resync.log --resync"
 RESYNC_MESSAGE = "ERROR : Bisync aborted. Must run --resync to recover."
 LOCK_MESSAGE = "NOTICE: Failed to bisync: prior lock file found: "
 LOG_DIR = "/home/truls/rclone-logs/"
@@ -11,11 +11,19 @@ LOG_DIR = "/home/truls/rclone-logs/"
 def main():
     log_file_name = get_last_log_file()
 
-    if check_log(log_file_name, RESYNC_MESSAGE):
-        print("Error found in log file. Running resync command...")
+    resync = check_log(log_file_name, RESYNC_MESSAGE)
+    if resync:
+        rename_log_file(log_file_name, "resync-to-recover")
+
+    lock = check_log(log_file_name, LOCK_MESSAGE)
+    if lock:
+        rename_log_file(log_file_name, "lock-file-found")
+
+    if resync:
+        print("Resync message found in log file. Running resync command...")
         return_code, _stdout, _stderr = run_command(RESYNC_COMMAND)
     else:
-        print("No error found in log file. No resync needed. Running normal command...")
+        print("No resync message found in log file. Running normal command...")
         return_code, _stdout, _stderr = run_command(NORMAL_COMMAND)
 
     if return_code != 0:
@@ -32,7 +40,7 @@ def get_last_log_file():
 
 def check_log(log_file_path, message):
     try:
-        print(f"Checking log file: {log_file_path}")
+        print(f"Checking log file: {log_file_path}, for message: {message}")
         with Path(log_file_path).open(encoding="utf-8") as log_file:
             for line in log_file:
                 if message in line:
@@ -40,6 +48,13 @@ def check_log(log_file_path, message):
     except FileNotFoundError:
         print(f"Log file {log_file_path} not found.")
     return False
+
+
+def rename_log_file(log_file_path, tag):
+    if log_file_path:
+        new_log_file_name = log_file_path.with_name(f"{log_file_path.stem}_{tag}.log")
+        log_file_path.rename(new_log_file_name)
+        print(f"Renamed log file to: {new_log_file_name}")
 
 
 def run_command(command):
