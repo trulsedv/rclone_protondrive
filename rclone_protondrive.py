@@ -1,16 +1,17 @@
 import subprocess  # noqa: S404
 from pathlib import Path
 
-NORMAL_COMMAND = r"rclone bisync ProtonDrive: /home/truls/Documents -v --force --min-size 1b --log-file=/home/truls/rclone-logs/protondrive-$(date +\%Y\%m\%d\%H\%M).log"
-RESYNC_COMMAND = r"rclone bisync ProtonDrive: /home/truls/Documents -v --force --min-size 1b --log-file=/home/truls/rclone-logs/protondrive-$(date +\%Y\%m\%d\%H\%M)-resync.log --resync"
-ERROR_MESSAGE = "ERROR : Bisync aborted. Must run --resync to recover."
+NORMAL_COMMAND = r"rclone bisync ProtonDrive: /home/truls/Documents -v --force --min-size 1b --max-lock 90m --log-file=/home/truls/rclone-logs/protondrive-$(date +\%Y\%m\%d\%H\%M).log"
+RESYNC_COMMAND = r"rclone bisync ProtonDrive: /home/truls/Documents -v --force --min-size 1b --max-lock 90m --log-file=/home/truls/rclone-logs/protondrive-$(date +\%Y\%m\%d\%H\%M)-resync.log --resync"
+RESYNC_MESSAGE = "ERROR : Bisync aborted. Must run --resync to recover."
+LOCK_MESSAGE = "NOTICE: Failed to bisync: prior lock file found: "
 LOG_DIR = "/home/truls/rclone-logs/"
 
 
 def main():
     log_file_name = get_last_log_file()
 
-    if check_log_for_error(log_file_name):
+    if check_log(log_file_name, RESYNC_MESSAGE):
         print("Error found in log file. Running resync command...")
         return_code, _stdout, _stderr = run_command(RESYNC_COMMAND)
     else:
@@ -29,12 +30,12 @@ def get_last_log_file():
     return Path(LOG_DIR) / log_files[0]
 
 
-def check_log_for_error(log_file_path):
+def check_log(log_file_path, message):
     try:
         print(f"Checking log file: {log_file_path}")
         with Path(log_file_path).open(encoding="utf-8") as log_file:
             for line in log_file:
-                if ERROR_MESSAGE in line:
+                if message in line:
                     return True
     except FileNotFoundError:
         print(f"Log file {log_file_path} not found.")
