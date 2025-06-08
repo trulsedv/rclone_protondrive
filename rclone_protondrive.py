@@ -1,8 +1,8 @@
 import subprocess  # noqa: S404
 from pathlib import Path
 
-NORMAL_COMMAND = r"rclone bisync ProtonDrive: /home/truls/Documents -v --force --min-size 1b --max-lock 90m --log-file=/home/truls/rclone-logs/protondrive-$(date +\%Y\%m\%d\%H\%M).log"
-RESYNC_COMMAND = r"rclone bisync ProtonDrive: /home/truls/Documents -v --force --min-size 1b --max-lock 90m --log-file=/home/truls/rclone-logs/protondrive-$(date +\%Y\%m\%d\%H\%M)_resync.log --resync"
+NORMAL_COMMAND = r"rclone bisync protondrive:2025 /home/truls/Documents/2025 -v --force --min-size 1b --max-lock 90m --log-file=/home/truls/rclone-logs/protondrive-$(date +\%Y\%m\%d\%H\%M).log"
+RESYNC_COMMAND = r"rclone bisync protondrive:2025 /home/truls/Documents/2025 -v --force --min-size 1b --max-lock 90m --log-file=/home/truls/rclone-logs/protondrive-$(date +\%Y\%m\%d\%H\%M)_resync.log --resync"
 RESYNC_MESSAGE = "ERROR : Bisync aborted. Must run --resync to recover."
 LOCK_MESSAGE = "NOTICE: Failed to bisync: prior lock file found: "
 LOG_DIR = "/home/truls/rclone-logs/"
