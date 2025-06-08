@@ -1,6 +1,11 @@
 import subprocess  # noqa: S404
 from pathlib import Path
 
+# crontab entry:
+# ProtonDrive, run rclone bisync every hour
+# 0 * * * * /usr/bin/python /home/truls/git/rclone_protondrive/rclone_protondrive.py
+
+
 NORMAL_COMMAND = r"rclone bisync protondrive:2025 /home/truls/Documents/2025 -v --force --min-size 1b --max-lock 90m --log-file=/home/truls/rclone-logs/protondrive-$(date +\%Y\%m\%d\%H\%M).log"
 RESYNC_COMMAND = r"rclone bisync protondrive:2025 /home/truls/Documents/2025 -v --force --min-size 1b --max-lock 90m --log-file=/home/truls/rclone-logs/protondrive-$(date +\%Y\%m\%d\%H\%M)_resync.log --resync"
 RESYNC_MESSAGE = "ERROR : Bisync aborted. Must run --resync to recover."
