@@ -15,6 +15,7 @@ LOG_DIR = "/home/truls/rclone-logs/"
 
 def main():
     log_file_name = get_last_log_file()
+    # TODO: Handle case where no log files are found
 
     resync = check_log(log_file_name, RESYNC_MESSAGE)
     if resync:
@@ -23,6 +24,7 @@ def main():
     lock = check_log(log_file_name, LOCK_MESSAGE)
     if lock:
         rename_log_file(log_file_name, "lock-file-found")
+        # TODO: Handle lock file found case, e.g., notify user or take action
 
     if resync:
         print("Resync message found in log file. Running resync command...")
