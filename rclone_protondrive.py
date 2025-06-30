@@ -1,11 +1,17 @@
 import subprocess  # noqa: S404
 from pathlib import Path
 
-NORMAL_COMMAND = r"rclone bisync ProtonDrive: /home/truls/Documents -v --force --min-size 1b --max-lock 90m --log-file=/home/truls/rclone-logs/protondrive-$(date +\%Y\%m\%d\%H\%M).log"
-RESYNC_COMMAND = r"rclone bisync ProtonDrive: /home/truls/Documents -v --force --min-size 1b --max-lock 90m --log-file=/home/truls/rclone-logs/protondrive-$(date +\%Y\%m\%d\%H\%M)_resync.log --resync"
 RESYNC_MESSAGE = "ERROR : Bisync aborted. Must run --resync to recover."
 LOCK_MESSAGE = "NOTICE: Failed to bisync: prior lock file found: "
 LOG_DIR = "/home/truls/rclone-logs/"
+
+BASE_COMMAND = "rclone bisync "
+SYNC_ALL = "protondrive: /home/truls/Documents "
+SYNC_2025 = "protondrive:2025 /home/truls/Documents/2025 "
+OPTIONS = r"-v --force --min-size 1b --max-lock 90m "
+RESYNC = "--resync "
+LOG = r"--log-file=/home/truls/rclone-logs/protondrive-$(date +\%Y\%m\%d\%H\%M).log"
+LOG_RESYNC = r"--log-file=/home/truls/rclone-logs/protondrive-$(date +\%Y\%m\%d\%H\%M)_resync.log"
 
 
 def main():
@@ -20,11 +26,13 @@ def main():
         rename_log_file(log_file_name, "lock-file-found")
 
     if resync:
+        command = BASE_COMMAND + SYNC_ALL + OPTIONS + RESYNC + LOG_RESYNC
         print("Resync message found in log file. Running resync command...")
-        return_code, _stdout, _stderr = run_command(RESYNC_COMMAND)
+        return_code, _stdout, _stderr = run_command(command)
     else:
+        command = BASE_COMMAND + SYNC_ALL + OPTIONS + LOG
         print("No resync message found in log file. Running normal command...")
-        return_code, _stdout, _stderr = run_command(NORMAL_COMMAND)
+        return_code, _stdout, _stderr = run_command(command)
 
     if return_code != 0:
         print("Command failed with return code:", return_code)
