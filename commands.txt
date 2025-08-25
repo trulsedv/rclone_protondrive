@@ -1,0 +1,2 @@
+rclone bisync protondrive: /home/truls/Documents -v --force --min-size 1b --max-lock 90m --log-file=/home/truls/rclone-logs/protondrive-$(date +\%Y\%m\%d\%H\%M).log
+rclone bisync protondrive: /home/truls/Documents -v --force --min-size 1b --max-lock 90m --resync --log-file=/home/truls/rclone-logs/protondrive-$(date +\%Y\%m\%d\%H\%M)_resync.log
